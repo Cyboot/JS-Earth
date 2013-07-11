@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Earth</title>
+		<script type="text/javascript" src="js/browser.js"></script>
+		<script type="text/javascript" src="js/init.js"></script>
+		<script type="text/javascript" src="js/util.js"></script>
+		<script type="text/javascript" src="js/entity.js"></script>
+		<script type="text/javascript" src="js/loop.js"></script>
+		<script type="text/javascript" src="js/game.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="css/game.css">
+		<link rel="stylesheet" type="text/css" href="css/other.css">
+	</head>
+	<body onload="init()" >
+		<table style="border-collapse: collapse;color: #fff">
+			<tr>
+				<td></td>
+				<td><a href="#" class="tooltip"> <img src="img/help.png"/> Hover here to see Tipps! <span> <b>How To</b>
+					<ul style="margin: 0px;padding-left: 20px">
+						<li>
+							Click on Buttons do build units
+						</li>
+						<li>
+							Upgrade units to increase performance
+						</li>
+						<li>
+							click Flak-Button and then on the planet to build Flaks
+						</li>
+					</ul>
+					<br />
+					<b>Tips</b>
+					<ul style="margin: 0px;padding-left: 20px">
+						<li>
+							Flaks are cheap but not very effective
+						</li>
+						<li>
+							Lab makes Upgrade cheaper
+						</li>
+						<li>
+							some more tips
+						</li>
+					</ul></span></a></td>
+			</tr>
+
+			<tr style="background-color: #444444">
+				<td valign="top" style="width: 80px;"><img src="img/level.png"/>&nbsp;<span id ="level">Level 1</span>
+				<br />
+				<img src="img/dollar.png"/>&nbsp;<span id ="money">123</span>
+				<br />
+				<img src="img/heart.png"/>&nbsp;<span id="live">100%</span>
+				<br />
+				<hr />
+				<div align="center">
+					In Orbit
+				</div>
+				<button class="newButton" id="satellite-small" onclick="button('satellite-small')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/satellite_20.png"/></td>
+							<td style="text-align: left">Small</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="satellite-big"  onclick="button('satellite-big')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/satellite_40.png"/ width="20px"></td>
+							<td style="text-align: left">Big</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">300</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="satellite-energy"  onclick="button('satellite-energy')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/satellite_money_20.png"/></td>
+							<td style="text-align: left">Energy</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<br />
+				<div align="center">
+					On Planet
+				</div>
+				<button class="newButton" id="flak"  onclick="button('flak')">
+					<table border="0" style="width: inherit;border-collapse: collapse;" onmouseover="hover(this);" onmouseout="unhover(this);">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/flak.png"/></td>
+							<td style="text-align: left">Flak</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">50</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="lab"  onclick="button('lab')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/lab.png"/></td>
+							<td style="text-align: left">Laboratory</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">150</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<br />
+				<br />
+				<div align="center">
+					Upgrades
+				</div>
+				<button class="newButton" id="upgrade-lab"  onclick="button('upgrade-lab')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/lab_upgrade.png"/></td>
+							<td style="text-align: left">Lab</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="upgrade-tower"  onclick="button('upgrade-tower')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/flak_upgrade.png"/></td>
+							<td style="text-align: left">Flak</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="upgrade-satellite-faster"  onclick="button('upgrade-satellite-faster')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/satellite_upgrade_small.png"/></td>
+							<td style="text-align: left">Sat speed</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<button class="newButton" id="upgrade-satellite-firerate"  onclick="button('upgrade-satellite-firerate')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/satellite_upgrade_big.png"/></td>
+							<td style="text-align: left">Sat firerate</td>
+						</tr>
+						<tr>
+							<td style="text-align: left">100</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<br />
+				<div align="center">
+					Debug
+				</div>
+				<button class="newButton" id="animate" onclick="button('animate')">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/dollar.png"/></td>
+							<td style="text-align: left">Animate</td>
+						</tr>
+						<tr></tr>
+					</table>
+				</button>
+				<br />
+				<!-- <input class="gui-button" type="button" id="debug" value="Debug" onclick="button('debug')" disabled/> -->
+				<button class="newButton" id="debug" onclick="button('debug')">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
+						<tr>
+							<td rowspan="2" width="25%"><img src="img/help.png"/></td>
+							<td style="text-align: left">Debug</td>
+						</tr>
+					</table>
+				</button>
+				<br />
+				<br />
+				</td>
+				<td valign="top">
+				<div id="canvas-wrap">
+					<canvas id="drawcanvas" width='1000' height='600'>
+						Your Browser does not support this HTML5-game :(
+						<br />
+						Try Google Chrome, Firefox or Internet Explorer 10 (seriously)
+					</canvas>
+					<div id="overlay">
+						<img src="img/planet_shade.png" id="planet_shade" />
+
+						<!-- ###################################################### Buttons on Planet ####################################################################### -->
+						<button href="#" id="flak0" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak1" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak2" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak3" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+
+						<button href="#" id="flak0L" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak0R" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak1L" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak1R" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak2L" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak2R" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak3L" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+						<button href="#" id="flak3R" class="flak inactive" onclick="buildFlak(this)" disabled></button>
+
+						<button href="#" id="lab0" class="lab" onclick="button('lab')"  disabled></button>
+						<button href="#" id="lab1" class="lab" onclick="button('lab')" disabled></button>
+						<button href="#" id="lab2" class="lab" onclick="button('lab')" disabled></button>
+						<button href="#" id="lab3" class="lab" onclick="button('lab')" disabled></button>
+						<!-- ################################################################################################################################################ -->
+
+					</div>
+				</div></td>
+
+			</tr>
+		</table>
+
+		<br />
+
+		<!-- Example for Tooltip
+		<a href="#" class="tooltip"> Tooltip <span><strong>Most Light-weight Tooltip</strong>
+		<br />
+		This is the easy-to-use Tooltip driven purely by CSS. </span> </a>
+		-->
+	</body>
+</html>
