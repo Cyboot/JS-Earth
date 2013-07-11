@@ -3,12 +3,12 @@
 
 
 //################   	Ideas	   ###################
-//TODO-Idea: Asteroid from top/down right left
 //TODO-Idea: Lab makes Science cheaper
 //TODO-Idea: Asteroid break animation
 //TODO-Idea: Upgrade for Tower
 //TODO-Idea: Upgrade for Lab
 //TODO-Idea: Lab-Upgrade Satellite faster
+//TODO-Idea: Satellite explode if collide with Asteroid
 //TODO-Idea: Sound
 //TODO-Idea: Moon collide with asteroid
 //TODO-Idea: Moon base
@@ -17,3 +17,4 @@
 
 
 
+ 

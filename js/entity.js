@@ -1,5 +1,6 @@
 function Satellite(center, radius, big) {
 	var ATTACK_DIST = 200;
+	var COLLISION_DIST = 50;
 	var COOLDOWN = big ? 250 : 1000;
 	var cooldown = COOLDOWN;
 	var SPEED = 0.0006;
@@ -10,6 +11,7 @@ function Satellite(center, radius, big) {
 	this.x = 0
 	this.y = 0;
 	this.angle = 0;
+	this.killed = false;
 
 	this.update = function(delta) {
 		this.x = Math.sin(this.angle) * radius;
@@ -23,26 +25,38 @@ function Satellite(center, radius, big) {
 		var posY = center.y + this.y;
 
 		cooldown -= delta;
-		//Check for near Rocks
+		// Check for near Rocks
 		if (cooldown < 0) {
-			for (var i = 0; i < rocks.length; i++) {
+			var hasShoot = false;
+		
+			for ( var i = 0; i < rocks.length; i++) {
 				var rockPos = rocks[i].getPos();
 				var dist = rockPos.distanceTo(posX, posY);
 
+				//if asteroid is too near it destroys the satellite
+				if (dist < COLLISION_DIST) {
+					bullets.push(new Explosion(new Vector(posX,posY), true));
+					this.killed = true;
+					break;
+				}
+				
+				if(hasShoot)
+					continue;
+				
 				if (dist < ATTACK_DIST) {
-					//log("Attacking Rock Nr." + i);
-
 					var pos = new Vector(posX, posY);
 
-					var dir = calcIntersect(rocks[i].pos, rocks[i].dir, 1, pos, 1);
+					var dir = calcIntersect(rocks[i].pos, rocks[i].dir, 1, pos,
+							1);
 					bullets.push(new Bullet(pos, dir));
 
-					//only attack one enemy per round
+					// only attack one enemy per round
 					cooldown = COOLDOWN;
-					break;
+					hasShoot = true;
 				}
 			}
 		}
+		return this.killed;
 	}
 
 	this.render = function() {
@@ -54,8 +68,8 @@ function Satellite(center, radius, big) {
 		else
 			drawImageCentered(img_satellite_20, posX, posY);
 
-		//ctx.fillStyle = "rgba(255,255,0,20)";
-		//drawCircle(posX, posY, ATTACK_DIST);
+		// ctx.fillStyle = "rgba(255,255,0,20)";
+		// drawCircle(posX, posY, ATTACK_DIST);
 	}
 
 	this.setSpeed = function(s) {
@@ -82,9 +96,9 @@ function EnergySatellite(center, radius) {
 
 		var posX = center.x + this.x;
 		var posY = center.y + this.y;
-		
+
 		this.timeleft -= delta;
-		if(this.timeleft < 0){
+		if (this.timeleft < 0) {
 			this.timeleft = 1000;
 			Game.money += MONEY;
 		}
@@ -105,8 +119,10 @@ function EnergySatellite(center, radius) {
 function Mothership(position) {
 	var MAX_MOVE_FROM_ORIGIN = 5;
 
-	var minBorder = new Vector(position.x - MAX_MOVE_FROM_ORIGIN, position.y - MAX_MOVE_FROM_ORIGIN);
-	var maxBorder = new Vector(position.x + MAX_MOVE_FROM_ORIGIN, position.y + MAX_MOVE_FROM_ORIGIN);
+	var minBorder = new Vector(position.x - MAX_MOVE_FROM_ORIGIN, position.y
+			- MAX_MOVE_FROM_ORIGIN);
+	var maxBorder = new Vector(position.x + MAX_MOVE_FROM_ORIGIN, position.y
+			+ MAX_MOVE_FROM_ORIGIN);
 	var pos = position;
 	var dir = randomVector();
 	this.remove = false;
@@ -148,7 +164,7 @@ function Bullet(pos, dir, size) {
 		this.pos.x += this.dir.x * this.speed * delta;
 		this.pos.y += this.dir.y * this.speed * delta;
 
-		for (var i = 0; i < rocks.length; i++) {
+		for ( var i = 0; i < rocks.length; i++) {
 			var rockPos = rocks[i].getPos();
 
 			if (rockPos.distanceToVec(this.pos) < rocks[i].size) {
@@ -156,7 +172,8 @@ function Bullet(pos, dir, size) {
 				this.remove = true;
 			}
 		}
-		if (this.pos.x < 0 || this.pos.y < 0 || this.pos.x > WIDTH || this.pos.y > HEIGHT)
+		if (this.pos.x < 0 || this.pos.y < 0 || this.pos.x > WIDTH
+				|| this.pos.y > HEIGHT)
 			this.remove = true;
 
 		return this.remove;
@@ -209,12 +226,40 @@ function Rock(pos, target, big) {
 
 		if (big) {
 			Game.money += 5;
-			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y - 12), this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y + 12), this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y - 12), this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y + 12), this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y - 12),
+					this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y + 12),
+					this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y - 12),
+					this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y + 12),
+					this.target, false));
+			exposions.push(new Explosion(this.pos,false));
 		} else
 			Game.money += 1;
+	}
+}
+
+function Explosion(pos, fire) {
+	this.pos = pos;
+	this.remove = false;
+	this.frametimeleft = 75;
+	this.currentframe = 0;
+	this.maxframes = fire ? 12 : 8;
+	this.sprite = fire ? sprite_explosion_fire : sprite_explosion_dust;
+
+	this.update = function(delta) {
+		this.frametimeleft -= delta;
+		if(this.frametimeleft < 0){
+			this.frametimeleft += 40;
+			this.currentframe++;
+		}
+		
+		return this.currentframe >= this.maxframes;
+	}
+
+	this.render = function() {
+		drawSpriteSheetImage(this.sprite, this.pos.x, this.pos.y,this.currentframe);
 	}
 }
 
@@ -238,15 +283,15 @@ function TowerArray() {
 	array.push(createTower("flak3R"));
 
 	this.select = function() {
-		for (var i = 0; i < array.length; i++)
+		for ( var i = 0; i < array.length; i++)
 			array[i].select();
 	}
 	this.deselect = function() {
-		for (var i = 0; i < array.length; i++)
+		for ( var i = 0; i < array.length; i++)
 			array[i].deselect();
 	}
 	this.build = function(flakName) {
-		for (var i = 0; i < array.length; i++) {
+		for ( var i = 0; i < array.length; i++) {
 			if (array[i].name == flakName)
 				array[i].build();
 		}
@@ -255,14 +300,16 @@ function TowerArray() {
 	}
 
 	this.render = function() {
-		for (var i = 0; i < array.length; i++) {
+		for ( var i = 0; i < array.length; i++) {
 			array[i].render();
-		};
+		}
+		;
 	}
 	this.update = function(delta) {
-		for (var i = 0; i < array.length; i++) {
+		for ( var i = 0; i < array.length; i++) {
 			array[i].update(delta);
-		};
+		}
+		;
 	}
 }
 
@@ -320,25 +367,27 @@ function Tower(x, y, angle, htmlNode) {
 	this.render = function() {
 		if (!active)
 			return;
-		//ctx.fillStyle = "rgba(255,255,0,20)";
-		//drawCircle(this.pos.x, this.pos.y, ATTACK_DIST);
+		// ctx.fillStyle = "rgba(255,255,0,20)";
+		// drawCircle(this.pos.x, this.pos.y, ATTACK_DIST);
 	}
 
 	this.update = function(delta) {
 		if (!active)
 			return;
 		cooldown -= delta;
-		//Check for near Rocks
+		// Check for near Rocks
 		if (cooldown < 0) {
-			for (var i = 0; i < rocks.length; i++) {
+			for ( var i = 0; i < rocks.length; i++) {
 				var rockPos = rocks[i].getPos();
 				var dist = rockPos.distanceTo(this.pos.x, this.pos.y);
 
 				if (dist < ATTACK_DIST) {
-					bullets.push(new Bullet(new Vector(this.pos.x + bullet_dx, this.pos.y + bullet_dy), dir, 2));
-					bullets.push(new Bullet(new Vector(this.pos.x - bullet_dx, this.pos.y - bullet_dy), dir, 2));
+					bullets.push(new Bullet(new Vector(this.pos.x + bullet_dx,
+							this.pos.y + bullet_dy), dir, 2));
+					bullets.push(new Bullet(new Vector(this.pos.x - bullet_dx,
+							this.pos.y - bullet_dy), dir, 2));
 
-					//only attack one enemy per round
+					// only attack one enemy per round
 					cooldown = COOLDOWN;
 					break;
 				}
@@ -409,8 +458,8 @@ var Sun = {
 		this.angle += delta * this.speed;
 		if (this.angle > 2 * Math.PI)
 			this.angle -= 2 * Math.PI;
-			
-		var deg =	this.angle * (180/Math.PI);
+
+		var deg = this.angle * (180 / Math.PI);
 		this.style_rotation.webkitTransform = "rotate(" + deg + "deg)";
 		this.style_rotation.MozTransform = "rotate(" + deg + "deg)";
 		this.style_rotation.msTransform = "rotate(" + deg + "deg)";

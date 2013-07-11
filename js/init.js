@@ -23,8 +23,17 @@ var img_arrow_down_left;
 var img_arrow_down_right;
 var img_arrow_up_left;
 var img_arrow_up_right;
-var img_arrow_right;
+
+var img_arrow_up;
+var img_arrow_down;
 var img_arrow_left;
+var img_arrow_right;
+
+var img_arrow_long_right;
+var img_arrow_long_left;
+
+var sprite_explosion_dust;
+var sprite_explosion_fire;
 
 var elem_level;
 var elem_money;
@@ -51,9 +60,16 @@ function init() {
 	img_arrow_down_right = loadImage("arrow_down_right.png");
 	img_arrow_up_left = loadImage("arrow_up_left.png");
 	img_arrow_up_right = loadImage("arrow_up_right.png");
-	
-	img_arrow_right = loadImage("arrow_right.png");
+	img_arrow_up = loadImage("arrow_up.png");
+	img_arrow_down = loadImage("arrow_down.png");
 	img_arrow_left = loadImage("arrow_left.png");
+	img_arrow_right = loadImage("arrow_right.png");	
+
+	img_arrow_long_right = loadImage("arrow_long_right.png");
+	img_arrow_long_left = loadImage("arrow_long_left.png");
+	
+	sprite_explosion_dust = loadImage("explosion_dust.png");
+	sprite_explosion_fire = loadImage("explosion_fire.png");
 
 	canvas = document.getElementById("drawcanvas");
 	buffer = document.createElement("canvas");

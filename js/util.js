@@ -45,7 +45,8 @@ function Vector(x, y) {
 	}
 
 	this.distanceToVec = function(other) {
-		return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
+		return Math.sqrt(Math.pow(other.x - this.x, 2)
+				+ Math.pow(other.y - this.y, 2));
 	}
 	this.distanceTo = function(x, y) {
 		return Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
@@ -57,6 +58,18 @@ function drawImageCentered(img, x, y) {
 	var height = img.height;
 
 	ctx.drawImage(img, x - width / 2, y - height / 2);
+}
+
+/**
+ * draws an image from an 1 dimensional spritesheet (all frames must be
+ * quadratic)
+ */
+function drawSpriteSheetImage(img_spritesheet, x, y, frameNr) {
+	var height = img_spritesheet.height;
+
+	ctx.drawImage(img_spritesheet, height * frameNr, 0, height, height, x - height
+			/ 2, y - height / 2, height, height);
+
 }
 
 function drawCircle(x, y, radius) {
@@ -74,7 +87,11 @@ function fillCircle(x, y, radius) {
 
 function getRotation(el) {
 	var st = window.getComputedStyle(el, null);
-	var tr = st.getPropertyValue("-webkit-transform") || st.getPropertyValue("-moz-transform") || st.getPropertyValue("-ms-transform") || st.getPropertyValue("-o-transform") || st.getPropertyValue("transform") || "fail...";
+	var tr = st.getPropertyValue("-webkit-transform")
+			|| st.getPropertyValue("-moz-transform")
+			|| st.getPropertyValue("-ms-transform")
+			|| st.getPropertyValue("-o-transform")
+			|| st.getPropertyValue("transform") || "fail...";
 
 	var values = tr.split('(')[1];
 	values = values.split(')')[0];
@@ -89,51 +106,51 @@ function getRotation(el) {
 	// arc sin, convert from radians to degrees, round
 	// DO NOT USE: see update below
 	var sin = b / scale;
-	//	var angle = Math.round(Math.asin(sin) * (180 / Math.PI));
+	// var angle = Math.round(Math.asin(sin) * (180 / Math.PI));
 	var angleRad = Math.atan2(b, a);
-	
-	if(angleRad < 0)
-		angleRad += Math.PI *2;
+
+	if (angleRad < 0)
+		angleRad += Math.PI * 2;
 	var angleDeg = angleRad * (180 / Math.PI);
 
-	//console.log('Rotate: ' + angleDeg + ' deg ('+angleRad+')');
+	// console.log('Rotate: ' + angleDeg + ' deg ('+angleRad+')');
 	return angleRad;
 }
 
 /**
- * Calculates the intersection between to linear moving things
- * (moving target= U, moving bullet = V)
- *
+ * Calculates the intersection between to linear moving things (moving target=
+ * U, moving bullet = V)
+ * 
  * @param {Vector} Upos Position of U (target)
  * @param {Vector} uDir Direction of U (target)
  * @param {Vector} Uspeed Speed of U (target)
  * @param {Vector} Vpos Position of V (Bullet)
  * @param {float} Vspeed Speed of V (Bullet)
- *
+ * 
  * @return direction to move to hit the target (Vdir)
  */
 function calcIntersect(Upos, uDir, Uspeed, Vpos, Vspeed) {
-	//add Speed to u
+	// add Speed to u
 	var u = new Vector(uDir.x * Uspeed, uDir.y * Uspeed);
 
-	//Vector UV
+	// Vector UV
 	var UV = new Vector(Upos.x - Vpos.x, Upos.y - Vpos.y);
 	UV.normalize();
 
-	//Udir in UV system
+	// Udir in UV system
 	var uDot = UV.x * u.x + UV.y * u.y;
 	var uj = new Vector(uDot * UV.x, uDot * UV.y);
 	var ui = new Vector(u.x - uj.x, u.y - uj.y);
 
-	//vi must be == ui to hit target
-	//Magnitude of vj
+	// vi must be == ui to hit target
+	// Magnitude of vj
 	var viMag = Math.sqrt(ui.x * ui.x + ui.y * ui.y);
 	var vjMag = Math.sqrt(Vspeed * Vspeed - viMag * viMag);
 
-	//Resulting VJ factor
+	// Resulting VJ factor
 	var vj = new Vector(UV.x * vjMag, UV.y * vjMag);
 
-	//Finish result: add v = vi + vj
+	// Finish result: add v = vi + vj
 	var v = new Vector(ui.x + vj.x, ui.y + vj.y);
 
 	return v;
@@ -147,7 +164,7 @@ Array.prototype.remove = function(from, to) {
 
 Array.prototype.removeElements = function(array) {
 	array.reverse();
-	for (var i = 0; i < array.length; i++)
+	for ( var i = 0; i < array.length; i++)
 		this.remove(array[i]);
 };
 
@@ -164,6 +181,6 @@ function randBoolean(percent) {
 	return Math.random() < (percent || 0.5);
 }
 
-String.prototype.contains = function(str){
+String.prototype.contains = function(str) {
 	return this.indexOf(str) != -1;
 }
