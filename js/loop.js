@@ -4,6 +4,7 @@ var delta = 0;
 
 var defender = new Array();
 var towerArray;
+var labArray;
 var rocks = new Array();
 var bullets = new Array();
 var exposions = new Array();
@@ -98,10 +99,11 @@ function loop(timestamp) {
 	ArrowAsteroids.render(delta);
 	// Tooltip for Button
 	Tooltip.render(delta);
+	Tutorial.render(delta);
 	// LevelUP
 	ctx.fillStyle = "#ffffff";
 	ctx.font = "14px Arial";
-	ctx.fillText("Levelup in: " + Math.floor(Game.levelUPTimeleft / 1000), 10,
+	ctx.fillText("LevelUp in: " + Math.floor(Game.levelUPTimeleft / 1000), 10,
 			20);
 	// prints FPS
 	ctx.fillStyle = "#ffff00";

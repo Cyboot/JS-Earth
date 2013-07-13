@@ -126,15 +126,15 @@ body {
 	background-color: transparent;
 	width: 20px;
 	height: 20px;
-	opacity: 0.2;
+	/* opacity: 0.2; */
 	border: none;
 }
-.lab:hover {
+/* .lab:hover {
 	opacity: 1;
 }
 .lab:disabled {
 	opacity: 0;
-}
+} */
 #flak0 {
 	top: 230px;
 	left: 570px;

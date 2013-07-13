@@ -80,6 +80,7 @@ function init() {
 	real_ctx = canvas.getContext("2d");
 	ctx = buffer.getContext("2d");
 	towerArray = new TowerArray();
+	labArray = new LabArray();
 
 	elem_level = document.getElementById("level");
 	elem_money = document.getElementById("money");

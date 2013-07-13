@@ -21,18 +21,18 @@ var Game = {
 		case 1:
 			Button.show(Button.satellite_small);
 			Button.show(Button.flak);
-			Button.show(Button.satellite_energy);
 			break;
 		case 3:
 			Button.show(Button.satellite_big);
 			break;
 		case 4:
-			// Button.show(Button.satellite_energy);
+			Button.show(Button.satellite_energy);
 			break;
 		case 5:
 			Button.show(Button.lab);
 			break;
 		case 6:
+			document.getElementById("update-label").style.display = "";
 			Button.show(Button.upgrade_tower);
 			break;
 		case 7:
@@ -126,7 +126,7 @@ var Cost = {
 	Upgrade_Flak : 100,
 	Upgrade_Sat_faster : 100,
 	Upgrade_Sat_firerate : 100
-}
+};
 
 /**
  * 0 = up-left 1 = up-right 2 = down-right 3 = down-left U = up D = down R =
@@ -139,7 +139,7 @@ var Level = {
 	MAXLEVEL : 12,
 
 	init : function() {
-//		this.dir[1] = "0123UDRL";
+		// this.dir[1] = "0123UDRL";
 		this.dir[1] = "2";
 
 		this.dir[2] = "23";
@@ -172,9 +172,10 @@ var Level = {
 		return this.dir[Game.level > this.MAXLEVEL ? this.MAXLEVEL : Game.level];
 	},
 	getRate : function() {
-		return this.rate[Game.level > this.MAXLEVEL ? this.MAXLEVEL : Game.level];
+		return this.rate[Game.level > this.MAXLEVEL ? this.MAXLEVEL
+				: Game.level];
 	}
-}
+};
 
 var ArrowAsteroids = {
 	showTimeleft : 1000,
@@ -229,7 +230,7 @@ var ArrowAsteroids = {
 		if (Level.getDir().contains("R"))
 			drawImageCentered(img_arrow_right, WIDTH - 50, HEIGHT / 2 - 25);
 	}
-}
+};
 
 var Tooltip = {
 	title : "",
@@ -240,8 +241,9 @@ var Tooltip = {
 	delayTimeleft : 400,
 	showTooltip : false,
 
-	show : function(button, height) {
+	showForButton : function(button, height) {
 		this.y = height;
+		this.x = 20;
 
 		switch (button) {
 		case "satellite-small":
@@ -267,7 +269,7 @@ var Tooltip = {
 		case "lab":
 			this.title = "Laboratory";
 			this.money = Cost.Lab;
-			this.desc = "build on planet, makes upgrades much cheaper";
+			this.desc = "build on planet, makes upgrades cheaper";
 			break;
 		case "upgrade-lab":
 			this.title = "Upgrade: Laboratory";
@@ -293,6 +295,7 @@ var Tooltip = {
 		this.showTooltip = true;
 		this.delayTimeleft = 400;
 	},
+
 	hide : function() {
 		this.showTooltip = false;
 	},
@@ -301,7 +304,6 @@ var Tooltip = {
 		this.delayTimeleft -= delta;
 		if (!this.showTooltip || this.delayTimeleft > 0)
 			return;
-		log(this.y);
 
 		var yTop = this.y - 5;
 		var yText1 = this.y + 10;
@@ -319,7 +321,6 @@ var Tooltip = {
 		// Box
 		ctx.fillStyle = "#444444";
 		ctx.fillRect(this.x - 5, yTop, textWidth + 10, yMax);
-		ctx.fill();
 		ctx.beginPath();
 		ctx.moveTo(0, yTop + yMax / 2);
 		ctx.lineTo(this.x, yTop + 10);
@@ -341,7 +342,18 @@ var Tooltip = {
 		 */
 
 	}
-}
+};
+
+var Tutorial = {
+	timeleft : 1000,
+
+	render : function(delta) {
+		this.timeleft -= delta;
+		if (this.timeleft < 0)
+			return;
+
+	}
+};
 
 var Button = {
 	satellite_small : null,
@@ -397,15 +409,19 @@ var Button = {
 		this.upgrade_satellite_faster.style.display = "";
 		this.upgrade_satellite_firerate.style.display = "";
 	}
-}
+};
 
 /**
  * Enable/Disable Button for the current Money
  */
 function checkButtonForCost() {
+	// Don't check (enable) Buttons while Building
+	if (isBuilding)
+		return;
+
 	var allButton = document.getElementsByClassName("newButton");
 
-	for ( var i = 0; i < allButton.length - 1; i++) {
+	for ( var i = 0; i < allButton.length; i++) {
 		switch (allButton[i].id) {
 		case "satellite-small":
 			allButton[i].disabled = Cost.Satellite_small > Game.money;
@@ -417,10 +433,16 @@ function checkButtonForCost() {
 			allButton[i].disabled = Cost.Satellite_shield > Game.money;
 			break;
 		case "flak":
-			allButton[i].disabled = Cost.Flak > Game.money;
+			if (towerArray.canBuild())
+				allButton[i].disabled = Cost.Flak > Game.money;
+			else
+				allButton[i].disabled = true;
 			break;
 		case "lab":
-			allButton[i].disabled = Cost.Lab > Game.money;
+			if (labArray.canBuild())
+				allButton[i].disabled = Cost.Lab > Game.money;
+			else
+				allButton[i].disabled = true;
 			break;
 		case "upgrade-lab":
 			allButton[i].disabled = Cost.Upgrade_Lab > Game.money;
@@ -454,6 +476,7 @@ function toogleAllButton(enable) {
 	;
 }
 
+var isBuilding = false;
 function button(action) {
 
 	switch (action) {
@@ -478,9 +501,17 @@ function button(action) {
 		log("Flak");
 		// Make all Flaks selected
 		towerArray.select();
+		// set isBuilding = true to disable Buttons
+		isBuilding = true;
 		break;
 	case "lab":
 		Game.money -= Cost.Lab;
+		toogleAllButton(false);
+		log("Lab");
+		// Make all Flaks selected
+		labArray.select();
+		// set isBuilding = true to disable Buttons
+		isBuilding = true;
 		break;
 	case "upgrade-lab":
 		break;
@@ -502,11 +533,20 @@ function button(action) {
 
 function buildFlak(htmlNode) {
 	debug("Build flak: " + htmlNode.id);
-	towerArray.build(htmlNode.id)
+	towerArray.build(htmlNode.id);
+	isBuilding = false;
+	unhover();
+}
+
+function buildLab(htmlNode) {
+	debug("Build lab: " + htmlNode.id);
+	labArray.build(htmlNode.id);
+	isBuilding = false;
+	unhover();
 }
 
 function hover(elem) {
-	Tooltip.show(elem.id, elem.offsetTop);
+	Tooltip.showForButton(elem.id, elem.offsetTop);
 }
 
 function unhover(elem) {

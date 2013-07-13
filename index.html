@@ -94,8 +94,8 @@
 				<div align="center">
 					On Planet
 				</div>
-				<button class="newButton" id="flak"  onclick="button('flak')">
-					<table border="0" style="width: inherit;border-collapse: collapse;" onmouseover="hover(this);" onmouseout="unhover(this);">
+				<button class="newButton" id="flak"  onclick="button('flak')" onmouseover="hover(this);" onmouseout="unhover(this);">
+					<table border="0" style="width: inherit;border-collapse: collapse;">
 						<tr>
 							<td rowspan="2" width="25%"><img src="img/flak.png"/></td>
 							<td style="text-align: left">Flak</td>
@@ -120,14 +120,14 @@
 				<br />
 				<br />
 				<br />
-				<div align="center">
+				<div id="update-label" align="center" style="display: none;">
 					Upgrades
 				</div>
-				<button class="newButton" id="upgrade-lab"  onclick="button('upgrade-lab')" onmouseover="hover(this);" onmouseout="unhover(this);">
+				<button class="newButton" id="upgrade-tower"  onclick="button('upgrade-tower')" onmouseover="hover(this);" onmouseout="unhover(this);">
 					<table border="0" style="width: inherit;border-collapse: collapse;">
 						<tr>
-							<td rowspan="2" width="25%"><img src="img/lab_upgrade.png"/></td>
-							<td style="text-align: left">Lab</td>
+							<td rowspan="2" width="25%"><img src="img/flak_upgrade.png"/></td>
+							<td style="text-align: left">Flak</td>
 						</tr>
 						<tr>
 							<td style="text-align: left">100</td>
@@ -135,11 +135,11 @@
 					</table>
 				</button>
 				<br />
-				<button class="newButton" id="upgrade-tower"  onclick="button('upgrade-tower')" onmouseover="hover(this);" onmouseout="unhover(this);">
+				<button class="newButton" id="upgrade-lab"  onclick="button('upgrade-lab')" onmouseover="hover(this);" onmouseout="unhover(this);">
 					<table border="0" style="width: inherit;border-collapse: collapse;">
 						<tr>
-							<td rowspan="2" width="25%"><img src="img/flak_upgrade.png"/></td>
-							<td style="text-align: left">Flak</td>
+							<td rowspan="2" width="25%"><img src="img/lab_upgrade.png"/></td>
+							<td style="text-align: left">Lab</td>
 						</tr>
 						<tr>
 							<td style="text-align: left">100</td>
@@ -227,10 +227,10 @@
 						<button href="#" id="flak3L" class="flak inactive" onclick="buildFlak(this)" disabled></button>
 						<button href="#" id="flak3R" class="flak inactive" onclick="buildFlak(this)" disabled></button>
 
-						<button href="#" id="lab0" class="lab" onclick="button('lab')"  disabled></button>
-						<button href="#" id="lab1" class="lab" onclick="button('lab')" disabled></button>
-						<button href="#" id="lab2" class="lab" onclick="button('lab')" disabled></button>
-						<button href="#" id="lab3" class="lab" onclick="button('lab')" disabled></button>
+						<button href="#" id="lab0" class="lab inactive" onclick="buildLab(this)"  disabled></button>
+						<button href="#" id="lab1" class="lab inactive" onclick="buildLab(this)" disabled></button>
+						<button href="#" id="lab2" class="lab inactive" onclick="buildLab(this)" disabled></button>
+						<button href="#" id="lab3" class="lab inactive" onclick="buildLab(this)" disabled></button>
 						<!-- ################################################################################################################################################ -->
 
 					</div>

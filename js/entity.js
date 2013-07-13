@@ -8,7 +8,7 @@ function Satellite(center, radius, big) {
 	this.center = center;
 	this.radius = radius;
 	this.big = big;
-	this.x = 0
+	this.x = 0;
 	this.y = 0;
 	this.angle = 0;
 	this.killed = false;
@@ -57,7 +57,7 @@ function Satellite(center, radius, big) {
 			}
 		}
 		return this.killed;
-	}
+	};
 
 	this.render = function() {
 		var posX = center.x + this.x;
@@ -70,16 +70,16 @@ function Satellite(center, radius, big) {
 
 		// ctx.fillStyle = "rgba(255,255,0,20)";
 		// drawCircle(posX, posY, ATTACK_DIST);
-	}
+	};
 
 	this.setSpeed = function(s) {
 		SPEED = s;
-	}
+	};
 }
 function EnergySatellite(center, radius) {
 	this.center = center;
 	this.radius = radius;
-	this.x = 0
+	this.x = 0;
 	this.y = 0;
 	this.angle = 0;
 	this.timeleft = 1000;
@@ -94,26 +94,23 @@ function EnergySatellite(center, radius) {
 		if (this.angle > 2 * Math.PI)
 			this.angle -= 2 * Math.PI;
 
-		var posX = center.x + this.x;
-		var posY = center.y + this.y;
-
 		this.timeleft -= delta;
 		if (this.timeleft < 0) {
 			this.timeleft = 1000;
 			Game.money += MONEY;
 		}
-	}
+	};
 
 	this.render = function() {
 		var posX = center.x + this.x;
 		var posY = center.y + this.y;
 
 		drawImageCentered(img_satellite_money_20, posX, posY);
-	}
+	};
 
 	this.setSpeed = function(s) {
 		speed = s;
-	}
+	};
 }
 
 function Mothership(position) {
@@ -146,11 +143,11 @@ function Mothership(position) {
 		if (pos.y < minBorder.y || pos.y > maxBorder.y)
 			dir.y = -dir.y;
 
-	}
+	};
 
 	this.render = function() {
 		drawImageCentered(img_mothership, pos.x, pos.y);
-	}
+	};
 }
 
 function Bullet(pos, dir, size) {
@@ -177,13 +174,13 @@ function Bullet(pos, dir, size) {
 			this.remove = true;
 
 		return this.remove;
-	}
+	};
 
 	this.render = function() {
 		ctx.fillStyle = "#ff0000";
 
 		fillCircle(pos.x, pos.y, this.size);
-	}
+	};
 }
 
 function Rock(pos, target, big) {
@@ -205,21 +202,23 @@ function Rock(pos, target, big) {
 		if (this.pos.distanceToVec(this.target) < 100) {
 			Game.live -= 1;
 			this.remove = true;
+			
+			exposions.push(new Explosion(this.pos,true));
 		}
 
 		return this.remove;
-	}
+	};
 
 	this.render = function() {
 		if (big)
 			drawImageCentered(img_asteroid_40, this.pos.x, this.pos.y);
 		else
 			drawImageCentered(img_asteroid_20, this.pos.x, this.pos.y);
-	}
+	};
 
 	this.getPos = function() {
 		return this.pos;
-	}
+	};
 
 	this.kill = function() {
 		this.remove = true;
@@ -237,7 +236,7 @@ function Rock(pos, target, big) {
 			exposions.push(new Explosion(this.pos,false));
 		} else
 			Game.money += 1;
-	}
+	};
 }
 
 function Explosion(pos, fire) {
@@ -256,18 +255,53 @@ function Explosion(pos, fire) {
 		}
 		
 		return this.currentframe >= this.maxframes;
-	}
+	};
 
 	this.render = function() {
 		drawSpriteSheetImage(this.sprite, this.pos.x, this.pos.y,this.currentframe);
-	}
+	};
 }
+
+function LabArray() {
+	var createLab = function(id) {
+		var but = document.getElementById(id);
+		return new Lab(but);
+	};
+	var count = 0;
+	var array = new Array();
+	array.push(createLab("lab0"));
+	array.push(createLab("lab1"));
+	array.push(createLab("lab2"));
+	array.push(createLab("lab3"));
+	
+	this.canBuild = function(){
+		return count < 4;
+	};
+	this.select = function() {
+		for ( var i = 0; i < array.length; i++)
+			array[i].select();
+	};
+	this.deselect = function() {
+		for ( var i = 0; i < array.length; i++)
+			array[i].deselect();
+	};
+	this.build = function(labname) {
+		for ( var i = 0; i < array.length; i++) {
+			if (array[i].name == labname)
+				array[i].build();
+		}
+		toogleAllButton(true);
+		this.deselect();
+		count++;
+	};
+};
 
 function TowerArray() {
 	var createTower = function(id) {
 		var but = document.getElementById(id);
 		return new Tower(but.offsetLeft, but.offsetTop, getRotation(but), but);
-	}
+	};
+	var count = 0;
 	var array = new Array();
 	array.push(createTower("flak0L"));
 	array.push(createTower("flak0"));
@@ -282,14 +316,18 @@ function TowerArray() {
 	array.push(createTower("flak3"));
 	array.push(createTower("flak3R"));
 
+	this.canBuild = function(){
+		return count < 12;
+	};
+	
 	this.select = function() {
 		for ( var i = 0; i < array.length; i++)
 			array[i].select();
-	}
+	};
 	this.deselect = function() {
 		for ( var i = 0; i < array.length; i++)
 			array[i].deselect();
-	}
+	};
 	this.build = function(flakName) {
 		for ( var i = 0; i < array.length; i++) {
 			if (array[i].name == flakName)
@@ -297,20 +335,50 @@ function TowerArray() {
 		}
 		toogleAllButton(true);
 		this.deselect();
-	}
+		count++;
+	};
 
 	this.render = function() {
 		for ( var i = 0; i < array.length; i++) {
 			array[i].render();
 		}
 		;
-	}
+	};
 	this.update = function(delta) {
 		for ( var i = 0; i < array.length; i++) {
 			array[i].update(delta);
 		}
 		;
-	}
+	};
+};
+
+function Lab(htmlNode) {
+	this.name = htmlNode.id;
+	this.htmlNode = htmlNode;
+	var active = false;
+	
+	this.select = function() {
+		if (active)
+			return;
+		
+		htmlNode.classList.remove("inactive");
+		htmlNode.classList.add("selected");
+		htmlNode.disabled = false;
+	};
+	this.deselect = function() {
+		if (active)
+			return;
+		
+		htmlNode.classList.remove("selected");
+		htmlNode.classList.add("inactive");
+		htmlNode.disabled = true;
+	};
+	this.build = function() {
+		active = true;
+		htmlNode.disabled = true;
+		htmlNode.classList.remove("inactive");
+		htmlNode.classList.add("active");
+	};
 }
 
 function Tower(x, y, angle, htmlNode) {
@@ -330,7 +398,8 @@ function Tower(x, y, angle, htmlNode) {
 		ortho.normalize();
 		bullet_dx = ortho.x * BULLET_DIST;
 		bullet_dy = ortho.y * BULLET_DIST;
-	}
+	};
+	
 	var ATTACK_DIST = 75;
 	var cooldown = 100;
 	var COOLDOWN = 300;
@@ -349,7 +418,7 @@ function Tower(x, y, angle, htmlNode) {
 		htmlNode.classList.remove("inactive");
 		htmlNode.classList.add("selected");
 		htmlNode.disabled = false;
-	}
+	};
 	this.deselect = function() {
 		if (active)
 			return;
@@ -357,19 +426,19 @@ function Tower(x, y, angle, htmlNode) {
 		htmlNode.classList.remove("selected");
 		htmlNode.classList.add("inactive");
 		htmlNode.disabled = true;
-	}
+	};
 	this.build = function() {
 		active = true;
 		htmlNode.disabled = true;
 		htmlNode.classList.remove("inactive");
 		htmlNode.classList.add("active");
-	}
+	};
 	this.render = function() {
 		if (!active)
 			return;
 		// ctx.fillStyle = "rgba(255,255,0,20)";
 		// drawCircle(this.pos.x, this.pos.y, ATTACK_DIST);
-	}
+	};
 
 	this.update = function(delta) {
 		if (!active)
@@ -393,7 +462,7 @@ function Tower(x, y, angle, htmlNode) {
 				}
 			}
 		}
-	}
+	};
 }
 
 var Planet = {
@@ -412,7 +481,7 @@ var Planet = {
 		ctx.drawImage(img_planet, this.x, this.y);
 		ctx.drawImage(img_planet, this.x - 600, this.y);
 	}
-}
+};
 
 var Moon = {
 	center : new Vector(WIDTH / 2, HEIGHT / 2),
@@ -437,7 +506,7 @@ var Moon = {
 
 		drawImageCentered(img_moon, posX, posY);
 	}
-}
+};
 var Sun = {
 	center : new Vector(WIDTH / 2, HEIGHT / 2),
 	radius : 650,
@@ -471,4 +540,4 @@ var Sun = {
 
 		drawImageCentered(img_sun, posX, posY);
 	}
-}
+};

@@ -27,30 +27,30 @@ function Vector(x, y) {
 	this.set = function(x, y) {
 		this.x = x;
 		this.y = y;
-	}
+	};
 
 	this.multiply = function(factor) {
 		this.x *= factor;
 		this.y *= factor;
-	}
+	};
 
 	this.normalize = function() {
 		var length = this.length();
 
 		this.x /= length;
 		this.y /= length;
-	}
+	};
 	this.length = function() {
 		return Math.sqrt(x * x + y * y);
-	}
+	};
 
 	this.distanceToVec = function(other) {
 		return Math.sqrt(Math.pow(other.x - this.x, 2)
 				+ Math.pow(other.y - this.y, 2));
-	}
+	};
 	this.distanceTo = function(x, y) {
 		return Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
-	}
+	};
 }
 
 function drawImageCentered(img, x, y) {
@@ -98,20 +98,18 @@ function getRotation(el) {
 	values = values.split(',');
 	var a = values[0];
 	var b = values[1];
-	var c = values[2];
-	var d = values[3];
 
-	var scale = Math.sqrt(a * a + b * b);
+	//var scale = Math.sqrt(a * a + b * b);
 
 	// arc sin, convert from radians to degrees, round
 	// DO NOT USE: see update below
-	var sin = b / scale;
+	//var sin = b / scale;
 	// var angle = Math.round(Math.asin(sin) * (180 / Math.PI));
 	var angleRad = Math.atan2(b, a);
 
 	if (angleRad < 0)
 		angleRad += Math.PI * 2;
-	var angleDeg = angleRad * (180 / Math.PI);
+	//var angleDeg = angleRad * (180 / Math.PI);
 
 	// console.log('Rotate: ' + angleDeg + ' deg ('+angleRad+')');
 	return angleRad;
@@ -183,4 +181,4 @@ function randBoolean(percent) {
 
 String.prototype.contains = function(str) {
 	return this.indexOf(str) != -1;
-}
+};
