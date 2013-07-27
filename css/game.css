@@ -1,0 +1,221 @@
+body {
+	background-color: #666666;
+	margin: 4px;
+}
+.inactive {
+	opacity: 0;
+}
+.selected {
+	opacity: 0.2;
+}
+.selected:hover {
+	opacity: 0.7;
+}
+.active {
+	opacity: 1;
+}
+
+.newButton {
+	background-color: #AAAAAA;
+	color: #000;
+	width: inherit;
+	height: 30px;
+	padding: 0px;
+	margin-bottom: 3px;
+	font-size: 0.6em;
+	border: 1px solid #DDDDDD;
+	-moz-border-radius: 5px; /* Firefox */
+	-webkit-border-radius: 5px; /* Safari, Chrome */
+	-khtml-border-radius: 5px; /* Konqueror */
+	border-radius: 5px; /* CSS3 */
+}
+.newButton:disabled img {
+	opacity: 0.25;
+}
+.newButton[disabled]:hover {
+	background-color: #AAAAAA;
+	color: #CCCCCC;
+}
+.newButton:disabled {
+	background-color: #AAAAAA;
+	color: #CCCCCC;
+}
+.newButton:hover {
+	background-color: #DDDDDD;
+}
+.newButton:active {
+	background-color: #FFFFFF;
+}
+
+.gui-button {
+	background-color: #AAAAAA;
+	color: #000;
+	width: inherit;
+	height: 30px;
+	padding: 0px;
+	font-size: 0.6em;
+	margin-bottom: 3px;
+	border: 1px solid #DDDDDD;
+}
+.gui-button[disabled]:hover {
+	background-color: #AAAAAA;
+	color: #CCCCCC;
+}
+.gui-button:disabled {
+	background-color: #AAAAAA;
+	color: #CCCCCC;
+}
+.gui-button:hover {
+	background-color: #DDDDDD;
+}
+.gui-button:active {
+	background-color: #FFFFFF;
+}
+#canvas-wrap {
+	position: relative
+}
+#planet_shade {
+	position: absolute;
+	top: 211px;
+	left: 411px;
+	transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+}
+#overlay {
+	position: absolute;
+	top: -11px;
+	left: -11px;
+}
+.flak {
+	position: absolute;
+	background-color: transparent;
+	background-image: url("../img/flak.png");
+	width: 20px;
+	height: 20px;
+	border: none;
+}
+#lab0 {
+	top: 200px;
+	left: 500px;
+}
+#lab1 {
+	top: 300px;
+	left: 600px;
+	transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+}
+#lab2 {
+	top: 400px;
+	left: 500px;
+	transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+}
+#lab3 {
+	top: 300px;
+	left: 400px;
+	transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+}
+.lab {
+	position: absolute;
+	background-image: url("../img/lab.png");
+	background-color: transparent;
+	width: 20px;
+	height: 20px;
+	/* opacity: 0.2; */
+	border: none;
+}
+/* .lab:hover {
+	opacity: 1;
+}
+.lab:disabled {
+	opacity: 0;
+} */
+#flak0 {
+	top: 230px;
+	left: 570px;
+	transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+}
+#flak0L {
+	top: 208px;
+	left: 542px;
+	transform: rotate(23deg);
+	-ms-transform: rotate(23deg);
+	-webkit-transform: rotate(23deg);
+}
+#flak0R {
+	top: 259px;
+	left: 593px;
+	transform: rotate(68deg);
+	-ms-transform: rotate(68deg);
+	-webkit-transform: rotate(68deg);
+}
+#flak1 {
+	top: 370px;
+	left: 570px;
+	transform: rotate(135deg);
+	-ms-transform: rotate(135deg);
+	-webkit-transform: rotate(135deg);
+}
+#flak1L {
+	top: 342px;
+	left: 593px;
+	transform: rotate(112deg);
+	-ms-transform: rotate(112deg);
+	-webkit-transform: rotate(112deg);
+}
+#flak1R {
+	top: 394px;
+	left: 542px;
+	transform: rotate(158deg);
+	-ms-transform: rotate(158deg);
+	-webkit-transform: rotate(158deg);
+}
+#flak2 {
+	top: 370px;
+	left: 430px;
+	transform: rotate(-135deg);
+	-ms-transform: rotate(-135deg);
+	-webkit-transform: rotate(-135deg);
+}
+#flak2L {
+	top: 394px;
+	left: 460px;
+	transform: rotate(-158deg);
+	-ms-transform: rotate(-158deg);
+	-webkit-transform: rotate(-158deg);
+}
+#flak2R {
+	top: 342px;
+	left: 409px;
+	transform: rotate(-112deg);
+	-ms-transform: rotate(-112deg);
+	-webkit-transform: rotate(-112deg);
+}
+#flak3 {
+	top: 230px;
+	left: 430px;
+	transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+}
+#flak3L {
+	top: 259px;
+	left: 409px;
+	transform: rotate(-68deg);
+	-ms-transform: rotate(-68deg);
+	-webkit-transform: rotate(-68deg);
+}
+#flak3R {
+	top: 208px;
+	left: 460px;
+	transform: rotate(-22deg);
+	-ms-transform: rotate(-22deg);
+	-webkit-transform: rotate(-22deg);
+}

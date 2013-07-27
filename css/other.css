@@ -1,0 +1,27 @@
+a.tooltip {
+	outline: none;
+	color:#ffffff;
+	font-size: 0.8em;
+	text-decoration: none;
+}
+a.tooltip:hover {
+	text-decoration: none;
+	opacity: 1;
+}
+a.tooltip span {
+	top: 28px;
+	left: 86px;
+	font-size: 0.9em;
+	z-index: 10;
+	display: none;
+	padding: 0px 5px;
+	width: 300px;
+}
+a.tooltip:hover span {
+	opacity: 0.7;
+	display: inline;
+	position: absolute;
+	color: #FFF;
+	border: 1px solid #555;
+	background: #333333;
+}
