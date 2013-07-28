@@ -10,11 +10,10 @@ var bullets = new Array();
 var exposions = new Array();
 var mothership = new Mothership(new Vector(100, 100));
 
-var t_rotate = 0;
-var c_earth = 0;
-
 var ASTEROIDS = true;
 var ANIMATE = false;
+
+rocks.push(new Comet(new Vector(WIDTH/2, HEIGHT/2), 300));
 function loop(timestamp) {
 	if (delta > 200)
 		delta = DELTA_TARGET;
@@ -68,10 +67,6 @@ function loop(timestamp) {
 	towerArray.update(delta);
 	Game.update(delta);
 
-	if (t_rotate > 800) {
-		c_earth = ++c_earth % 8;
-		t_rotate = 0;
-	}
 	// #######################################################
 
 	// #################### RENDER ##########################
@@ -86,7 +81,8 @@ function loop(timestamp) {
 		rocks[i].render();
 	}
 	for ( var i = 0; i < exposions.length; i++) {
-		exposions[i].render();
+		if(ANIMATE)
+			exposions[i].render();
 	}
 	for ( var i = 0; i < bullets.length; i++) {
 		bullets[i].render();
@@ -94,6 +90,9 @@ function loop(timestamp) {
 	for ( var i = 0; i < defender.length; i++) {
 		defender[i].render();
 	}
+	
+//	comet.update(delta);
+//	comet.render();
 	
 	// mothership.render();
 	ArrowAsteroids.render(delta);
@@ -103,11 +102,11 @@ function loop(timestamp) {
 	// LevelUP
 	ctx.fillStyle = "#ffffff";
 	ctx.font = "14px Arial";
-	ctx.fillText("LevelUp in: " + Math.floor(Game.levelUPTimeleft / 1000), 10,
+	ctx.fillText("Level up in: " + Math.floor(Game.levelUPTimeleft / 1000), WIDTH - 100,
 			20);
 	// prints FPS
 	ctx.fillStyle = "#ffff00";
-	ctx.fillText("FPS: " + Math.floor(1000 / delta), WIDTH - 70, 20);
+	ctx.fillText("FPS: " + Math.floor(1000 / delta), WIDTH - 55, HEIGHT-6);
 	// #######################################################
 
 	real_ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -115,7 +114,7 @@ function loop(timestamp) {
 
 	// print Money & Level
 	elem_level.innerHTML = "Level " + Game.level;
-	elem_money.innerHTML = Game.money;
+	elem_money.innerHTML = Math.floor(Game.money);
 	elem_live.innerHTML = Game.live + " %";
 
 	checkButtonForCost();

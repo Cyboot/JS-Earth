@@ -1,6 +1,6 @@
 function Satellite(center, radius, big) {
-	var ATTACK_DIST = 200;
-	var COLLISION_DIST = 50;
+	var ATTACK_DIST = 150;
+	var COLLISION_DIST = 40;
 	var COOLDOWN = big ? 250 : 1000;
 	var cooldown = COOLDOWN;
 	var SPEED = 0.0006;
@@ -28,26 +28,26 @@ function Satellite(center, radius, big) {
 		// Check for near Rocks
 		if (cooldown < 0) {
 			var hasShoot = false;
-		
+
 			for ( var i = 0; i < rocks.length; i++) {
 				var rockPos = rocks[i].getPos();
 				var dist = rockPos.distanceTo(posX, posY);
 
-				//if asteroid is too near it destroys the satellite
-				if (dist < COLLISION_DIST) {
-					bullets.push(new Explosion(new Vector(posX,posY), true));
+				// if (big) asteroid is too near it destroys the satellite
+				if (dist < COLLISION_DIST && rocks[i].isBig()) {
+					exposions.push(new Explosion(new Vector(posX, posY), true));
+					rocks[i].kill();
 					this.killed = true;
 					break;
 				}
-				
-				if(hasShoot)
+
+				if (hasShoot)
 					continue;
-				
-				if (dist < ATTACK_DIST) {
+
+				if (dist < ATTACK_DIST && rocks[i].dir) {
 					var pos = new Vector(posX, posY);
 
-					var dir = calcIntersect(rocks[i].pos, rocks[i].dir, 1, pos,
-							1);
+					var dir = calcIntersect(rocks[i].pos, rocks[i].dir, 1, pos, 1);
 					bullets.push(new Bullet(pos, dir));
 
 					// only attack one enemy per round
@@ -76,6 +76,91 @@ function Satellite(center, radius, big) {
 		SPEED = s;
 	};
 }
+
+function Comet(center, radius) {
+	function Particle(center, radius, size) {
+		this.center = center;
+		this.radius = radius;
+		this.x = 0;
+		this.y = 0;
+		this.angle = 0;
+		this.remove = false;
+		this.size = size;
+		var SPEED = 0.0009;
+
+		this.update = function() {
+			this.x = Math.sin(this.angle) * radius;
+			this.y = -Math.cos(this.angle) * radius;
+
+			this.angle += delta * SPEED;
+			if (this.angle > 2 * Math.PI)
+				this.angle -= 2 * Math.PI;
+
+			var posX = center.x + this.x;
+			var posY = center.y + this.y;
+			if (this.center.distanceTo(posX, posY) < 100) {
+				Game.live -= 1;
+				this.remove = true;
+				exposions.push(new Explosion(new Vector(posX, posY), true));
+			}
+
+			radius -= delta / 50;
+			return this.remove;
+		};
+		this.kill = function() {
+			this.remove = true;
+			exposions.push(new Explosion(this.getPos(), false));
+			Game.money += Cost.bonus_asteroid_small;
+		};
+		
+		this.render = function() {
+			var posX = center.x + this.x;
+			var posY = center.y + this.y;
+
+			ctx.fillStyle = "rgba(55,55,55,200)";
+			fillCircle(posX, posY, this.size);
+		};
+
+		this.getPos = function() {
+			var posX = center.x + this.x;
+			var posY = center.y + this.y;
+			return new Vector(posX, posY);
+		};
+	}
+	;
+
+	var MAX_PARTICLE = 6;
+	this.particleCount = 0;
+	this.center = center;
+	this.radius = radius;
+	this.timeLeftParticle = 200;
+
+	this.remove = false;
+
+	this.update = function(delta) {
+		this.timeLeftParticle -= delta;
+		if (this.timeLeftParticle < 0) {
+			rocks.push(new Particle(this.center, this.radius, 15 - this.particleCount * 1.5));
+			this.timeLeftParticle = 200;
+			this.particleCount++;
+		}
+		
+		if(this.particleCount > MAX_PARTICLE)
+			this.remove = true;
+
+		return this.remove;
+	};
+
+	this.render = function() {
+		
+	};
+	
+	var off = new Vector(-1000, -1000);
+	this.getPos = function() {
+		return off;
+	};
+}
+
 function EnergySatellite(center, radius) {
 	this.center = center;
 	this.radius = radius;
@@ -116,10 +201,8 @@ function EnergySatellite(center, radius) {
 function Mothership(position) {
 	var MAX_MOVE_FROM_ORIGIN = 5;
 
-	var minBorder = new Vector(position.x - MAX_MOVE_FROM_ORIGIN, position.y
-			- MAX_MOVE_FROM_ORIGIN);
-	var maxBorder = new Vector(position.x + MAX_MOVE_FROM_ORIGIN, position.y
-			+ MAX_MOVE_FROM_ORIGIN);
+	var minBorder = new Vector(position.x - MAX_MOVE_FROM_ORIGIN, position.y - MAX_MOVE_FROM_ORIGIN);
+	var maxBorder = new Vector(position.x + MAX_MOVE_FROM_ORIGIN, position.y + MAX_MOVE_FROM_ORIGIN);
 	var pos = position;
 	var dir = randomVector();
 	this.remove = false;
@@ -169,8 +252,7 @@ function Bullet(pos, dir, size) {
 				this.remove = true;
 			}
 		}
-		if (this.pos.x < 0 || this.pos.y < 0 || this.pos.x > WIDTH
-				|| this.pos.y > HEIGHT)
+		if (this.pos.x < 0 || this.pos.y < 0 || this.pos.x > WIDTH || this.pos.y > HEIGHT)
 			this.remove = true;
 
 		return this.remove;
@@ -202,8 +284,7 @@ function Rock(pos, target, big) {
 		if (this.pos.distanceToVec(this.target) < 100) {
 			Game.live -= 1;
 			this.remove = true;
-			
-			exposions.push(new Explosion(this.pos,true));
+			exposions.push(new Explosion(this.pos, true));
 		}
 
 		return this.remove;
@@ -220,22 +301,22 @@ function Rock(pos, target, big) {
 		return this.pos;
 	};
 
+	this.isBig = function() {
+		return big;
+	};
+
 	this.kill = function() {
 		this.remove = true;
 
 		if (big) {
-			Game.money += 5;
-			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y - 12),
-					this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y + 12),
-					this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y - 12),
-					this.target, false));
-			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y + 12),
-					this.target, false));
-			exposions.push(new Explosion(this.pos,false));
+			Game.money += Cost.bonus_asteroid_big;
+			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y - 12), this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x - 12, this.pos.y + 12), this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y - 12), this.target, false));
+			rocks.push(new Rock(new Vector(this.pos.x + 12, this.pos.y + 12), this.target, false));
+			exposions.push(new Explosion(this.pos, false));
 		} else
-			Game.money += 1;
+			Game.money += Cost.bonus_asteroid_small;
 	};
 }
 
@@ -249,16 +330,16 @@ function Explosion(pos, fire) {
 
 	this.update = function(delta) {
 		this.frametimeleft -= delta;
-		if(this.frametimeleft < 0){
+		if (this.frametimeleft < 0) {
 			this.frametimeleft += 40;
 			this.currentframe++;
 		}
-		
+
 		return this.currentframe >= this.maxframes;
 	};
 
 	this.render = function() {
-		drawSpriteSheetImage(this.sprite, this.pos.x, this.pos.y,this.currentframe);
+		drawSpriteSheetImage(this.sprite, this.pos.x, this.pos.y, this.currentframe);
 	};
 }
 
@@ -273,8 +354,8 @@ function LabArray() {
 	array.push(createLab("lab1"));
 	array.push(createLab("lab2"));
 	array.push(createLab("lab3"));
-	
-	this.canBuild = function(){
+
+	this.canBuild = function() {
 		return count < 4;
 	};
 	this.select = function() {
@@ -316,10 +397,10 @@ function TowerArray() {
 	array.push(createTower("flak3"));
 	array.push(createTower("flak3R"));
 
-	this.canBuild = function(){
+	this.canBuild = function() {
 		return count < 12;
 	};
-	
+
 	this.select = function() {
 		for ( var i = 0; i < array.length; i++)
 			array[i].select();
@@ -356,11 +437,11 @@ function Lab(htmlNode) {
 	this.name = htmlNode.id;
 	this.htmlNode = htmlNode;
 	var active = false;
-	
+
 	this.select = function() {
 		if (active)
 			return;
-		
+
 		htmlNode.classList.remove("inactive");
 		htmlNode.classList.add("selected");
 		htmlNode.disabled = false;
@@ -368,7 +449,7 @@ function Lab(htmlNode) {
 	this.deselect = function() {
 		if (active)
 			return;
-		
+
 		htmlNode.classList.remove("selected");
 		htmlNode.classList.add("inactive");
 		htmlNode.disabled = true;
@@ -381,10 +462,15 @@ function Lab(htmlNode) {
 	};
 }
 
+var towerUpgradeLevel = 0;
 function Tower(x, y, angle, htmlNode) {
-	var bullet_dx;
-	var bullet_dy;
+	var bullet_dx = 0;
+	var bullet_dy = 0;
 	var BULLET_DIST = 8;
+	var COOLDOWN_UPGRADE_0 = 1500;
+	var COOLDOWN_UPGRADE_1 = 1000;
+	var COOLDOWN_UPGRADE_2 = 500;
+	var ATTACK_DIST = 150;
 
 	var init = function(angle) {
 		var x = Math.sin(angle);
@@ -399,12 +485,10 @@ function Tower(x, y, angle, htmlNode) {
 		bullet_dx = ortho.x * BULLET_DIST;
 		bullet_dy = ortho.y * BULLET_DIST;
 	};
-	
-	var ATTACK_DIST = 75;
+
 	var cooldown = 100;
-	var COOLDOWN = 300;
 	var active = false;
-	var dir;
+	var dir = 0;
 	this.name = htmlNode.id;
 	this.htmlNode = htmlNode;
 	init(angle);
@@ -451,13 +535,29 @@ function Tower(x, y, angle, htmlNode) {
 				var dist = rockPos.distanceTo(this.pos.x, this.pos.y);
 
 				if (dist < ATTACK_DIST) {
-					bullets.push(new Bullet(new Vector(this.pos.x + bullet_dx,
-							this.pos.y + bullet_dy), dir, 2));
-					bullets.push(new Bullet(new Vector(this.pos.x - bullet_dx,
-							this.pos.y - bullet_dy), dir, 2));
+					switch (towerUpgradeLevel) {
+					case 0:
+						bullets.push(new Bullet(new Vector(this.pos.x, this.pos.y), dir, 2));
+						cooldown = COOLDOWN_UPGRADE_0;
+						break;
+					case 1:
+						bullets.push(new Bullet(new Vector(this.pos.x + bullet_dx, this.pos.y + bullet_dy), dir, 2));
+						bullets.push(new Bullet(new Vector(this.pos.x - bullet_dx, this.pos.y - bullet_dy), dir, 2));
+						cooldown = COOLDOWN_UPGRADE_1;
+						break;
+					case 2:
+					default:
+						var dx = bullet_dx * 1.5;
+						var dy = bullet_dy * 1.5;
+						bullets.push(new Bullet(new Vector(this.pos.x + dx, this.pos.y + dy), dir, 2));
+						bullets.push(new Bullet(new Vector(this.pos.x - dx, this.pos.y - dy), dir, 2));
+						bullets.push(new Bullet(new Vector(this.pos.x, this.pos.y), dir, 2));
+						cooldown = COOLDOWN_UPGRADE_2;
+						break;
+
+					}
 
 					// only attack one enemy per round
-					cooldown = COOLDOWN;
 					break;
 				}
 			}

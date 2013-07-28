@@ -1,8 +1,5 @@
-//################   	Tasks	   ###################
-
-
-
 //################   	Ideas	   ###################
+//TODO-Idea: Comets, cirle/spirale the planet: only destroyable with Flak
 //TODO-Idea: Lab makes Science cheaper
 //TODO-Idea: Upgrade for Tower
 //TODO-Idea: Upgrade for Lab

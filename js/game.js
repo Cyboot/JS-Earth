@@ -2,13 +2,13 @@ var Game = {
 	money : 1000,
 	level : 0,
 	live : 100,
-	levelUPTimeleft : 20 * 1000,
+	levelUPTimeleft : 30 * 1000,
 
 	update : function(delta) {
 		this.levelUPTimeleft -= delta;
 
 		if (this.levelUPTimeleft < 0) {
-			this.levelUPTimeleft = 20 * 1000;
+			this.levelUPTimeleft = 30 * 1000;
 			this.levelUP();
 		}
 	},
@@ -21,6 +21,8 @@ var Game = {
 		case 1:
 			Button.show(Button.satellite_small);
 			Button.show(Button.flak);
+			break;
+		case 2:
 			break;
 		case 3:
 			Button.show(Button.satellite_big);
@@ -53,7 +55,7 @@ var Spawner = {
 		this.cooldown -= delta;
 
 		if (this.cooldown < 0) {
-			this.cooldown = Level.getRate();
+			this.cooldown = Level.getTimeleft();
 
 			var rand = Math.random() > 0.5;
 			var randBig = Math.random() < (0.1 * (Game.level - 2));
@@ -119,13 +121,18 @@ var Spawner = {
 var Cost = {
 	Satellite_small : 100,
 	Satellite_big : 300,
-	Satellite_energy : 300,
-	Flak : 50,
-	Lab : 150,
-	Upgrade_Lab : 100,
-	Upgrade_Flak : 100,
-	Upgrade_Sat_faster : 100,
-	Upgrade_Sat_firerate : 100
+	Satellite_energy : 200,
+	Flak : 90,
+	Lab : 300,
+	Upgrade_Lab : 1000,
+	Upgrade_Flak : 1000,
+	Upgrade_Sat_faster : 1000,
+	Upgrade_Sat_firerate : 1000,
+
+	bonus_asteroid_small : 3,
+	bonus_asteroid_big : 15,
+	
+	FAKTOR_INFLATION : 1.25,
 };
 
 /**
@@ -154,26 +161,28 @@ var Level = {
 		this.dir[11] = "UDLR";
 		this.dir[12] = "0123UDLR";
 
-		this.rate[1] = 4000;
-		this.rate[2] = 7000;
-		this.rate[3] = 3000;
-		this.rate[4] = 2000;
-		this.rate[5] = 1500;
-		this.rate[6] = 1000;
-		this.rate[7] = 800;
-		this.rate[8] = 600;
-		this.rate[9] = 400;
-		this.rate[10] = 200;
-		this.rate[11] = 300;
-		this.rate[12] = 150;
+		this.rate[1] = 0.2;
+		this.rate[2] = 0.4;
+		this.rate[3] = 0.6;
+		this.rate[4] = 0.8;
+		this.rate[5] = 1;
+		this.rate[6] = 1.2;
+		this.rate[7] = 2;
+		this.rate[8] = 3;
+		this.rate[9] = 4;
+		this.rate[10] = 5;
+		this.rate[11] = 6;
+		this.rate[12] = 7;
 	},
 
 	getDir : function() {
 		return this.dir[Game.level > this.MAXLEVEL ? this.MAXLEVEL : Game.level];
 	},
-	getRate : function() {
-		return this.rate[Game.level > this.MAXLEVEL ? this.MAXLEVEL
-				: Game.level];
+	getTimeleft : function() {
+		var rate = this.rate[Game.level > this.MAXLEVEL ? this.MAXLEVEL : Game.level];
+		var factor = this.getDir().length;
+
+		return factor / rate * 1000;
 	}
 };
 
@@ -192,10 +201,8 @@ var ArrowAsteroids = {
 			ctx.strokeStyle = "#3b80ff";
 			ctx.fillStyle = "#0049d2";
 			ctx.font = "100px Arial bold";
-			ctx.fillText("Level " + Game.level, WIDTH / 2 - 150,
-					HEIGHT / 2 - 120);
-			ctx.strokeText("Level " + Game.level, WIDTH / 2 - 150,
-					HEIGHT / 2 - 120);
+			ctx.fillText("Level " + Game.level, WIDTH / 2 - 150, HEIGHT / 2 - 120);
+			ctx.strokeText("Level " + Game.level, WIDTH / 2 - 150, HEIGHT / 2 - 120);
 		}
 
 		if (this.showTimeleft > 700)
@@ -236,6 +243,7 @@ var Tooltip = {
 	title : "",
 	money : 0,
 	desc : "",
+	button : null,
 	y : 0,
 	x : 20,
 	delayTimeleft : 400,
@@ -244,8 +252,10 @@ var Tooltip = {
 	showForButton : function(button, height) {
 		this.y = height;
 		this.x = 20;
+		this.button = button;
 
-		switch (button) {
+		this.maintenance_cost = "";
+		switch (button.id) {
 		case "satellite-small":
 			this.title = "Small shooting satellite";
 			this.money = Cost.Satellite_small;
@@ -254,7 +264,7 @@ var Tooltip = {
 		case "satellite-big":
 			this.title = "Big shooting satellite";
 			this.money = Cost.Satellite_big;
-			this.desc = "shoots at asteroids (3 shot/sec)";
+			this.desc = "shoots at asteroids (4 shot/sec)";
 			break;
 		case "satellite-energy":
 			this.title = "Energy satellite";
@@ -264,7 +274,7 @@ var Tooltip = {
 		case "flak":
 			this.title = "Flak";
 			this.money = Cost.Flak;
-			this.desc = "shoots from planet into orbit (1 shot/sec)";
+			this.desc = "shoots from planet into orbit, upgradable";
 			break;
 		case "lab":
 			this.title = "Laboratory";
@@ -301,13 +311,16 @@ var Tooltip = {
 	},
 
 	render : function(delta) {
+		if(this.button != null &&  this.button.disabled)
+			this.hide();
+		
 		this.delayTimeleft -= delta;
 		if (!this.showTooltip || this.delayTimeleft > 0)
 			return;
 
 		var yTop = this.y - 5;
 		var yText1 = this.y + 10;
-		var yText2 = yText1 + 20;
+		var yText2 = yText1 + 23;
 		var yMax = 45;
 
 		var text = this.title + "   $" + this.money + "";
@@ -374,10 +387,8 @@ var Button = {
 		this.lab = document.getElementById("lab");
 		this.upgrade_lab = document.getElementById("upgrade-lab");
 		this.upgrade_tower = document.getElementById("upgrade-tower");
-		this.upgrade_satellite_faster = document
-				.getElementById("upgrade-satellite-faster");
-		this.upgrade_satellite_firerate = document
-				.getElementById("upgrade-satellite-firerate");
+		this.upgrade_satellite_faster = document.getElementById("upgrade-satellite-faster");
+		this.upgrade_satellite_firerate = document.getElementById("upgrade-satellite-firerate");
 	},
 
 	hide : function(button) {
@@ -422,38 +433,49 @@ function checkButtonForCost() {
 	var allButton = document.getElementsByClassName("newButton");
 
 	for ( var i = 0; i < allButton.length; i++) {
+		var money = allButton[i].getElementsByTagName("td")[2];
+
 		switch (allButton[i].id) {
 		case "satellite-small":
 			allButton[i].disabled = Cost.Satellite_small > Game.money;
+			money.innerHTML = Cost.Satellite_small;
 			break;
 		case "satellite-big":
 			allButton[i].disabled = Cost.Satellite_big > Game.money;
+			money.innerHTML = Cost.Satellite_big;
 			break;
 		case "satellite-energy":
-			allButton[i].disabled = Cost.Satellite_shield > Game.money;
+			allButton[i].disabled = Cost.Satellite_energy > Game.money;
+			money.innerHTML = Cost.Satellite_energy;
 			break;
 		case "flak":
+			money.innerHTML = Cost.Flak;
 			if (towerArray.canBuild())
 				allButton[i].disabled = Cost.Flak > Game.money;
 			else
 				allButton[i].disabled = true;
 			break;
 		case "lab":
+			money.innerHTML = Cost.Lab;
 			if (labArray.canBuild())
 				allButton[i].disabled = Cost.Lab > Game.money;
 			else
 				allButton[i].disabled = true;
 			break;
 		case "upgrade-lab":
+			money.innerHTML = Cost.Upgrade_Lab;
 			allButton[i].disabled = Cost.Upgrade_Lab > Game.money;
 			break;
 		case "upgrade-tower":
+			money.innerHTML = Cost.Upgrade_Flak;
 			allButton[i].disabled = Cost.Upgrade_Flak > Game.money;
 			break;
 		case "upgrade-satellite-faster":
+			money.innerHTML = Cost.Upgrade_Sat_faster;
 			allButton[i].disabled = Cost.Upgrade_Sat_faster > Game.money;
 			break;
 		case "upgrade-satellite-firerate":
+			money.innerHTML = Cost.Upgrade_Sat_firerate;
 			allButton[i].disabled = Cost.Upgrade_Sat_firerate > Game.money;
 			break;
 		}
@@ -482,21 +504,22 @@ function button(action) {
 	switch (action) {
 	case "satellite-small":
 		Game.money -= Cost.Satellite_small;
-		defender.push(new Satellite(new Vector(WIDTH / 2, HEIGHT / 2), 200,
-				false));
+		Cost.Satellite_small = Math.floor(Cost.FAKTOR_INFLATION * Cost.Satellite_small);
+		defender.push(new Satellite(new Vector(WIDTH / 2, HEIGHT / 2), 200, false));
 		break;
 	case "satellite-big":
 		Game.money -= Cost.Satellite_big;
-		defender.push(new Satellite(new Vector(WIDTH / 2, HEIGHT / 2), 200,
-				true));
+		Cost.Satellite_big = Math.floor(Cost.FAKTOR_INFLATION * Cost.Satellite_big);
+		defender.push(new Satellite(new Vector(WIDTH / 2, HEIGHT / 2), 200, true));
 		break;
 	case "satellite-energy":
 		Game.money -= Cost.Satellite_energy;
-		defender.push(new EnergySatellite(new Vector(WIDTH / 2, HEIGHT / 2),
-				200));
+		Cost.Satellite_energy = Math.floor(Cost.FAKTOR_INFLATION * Cost.Satellite_energy);
+		defender.push(new EnergySatellite(new Vector(WIDTH / 2, HEIGHT / 2), 200));
 		break;
 	case "flak":
 		Game.money -= Cost.Flak;
+		Cost.Flak = Math.floor(Cost.FAKTOR_INFLATION * Cost.Flak);
 		toogleAllButton(false);
 		log("Flak");
 		// Make all Flaks selected
@@ -506,6 +529,7 @@ function button(action) {
 		break;
 	case "lab":
 		Game.money -= Cost.Lab;
+		Cost.Lab = Math.floor(Cost.FAKTOR_INFLATION * Cost.Lab);
 		toogleAllButton(false);
 		log("Lab");
 		// Make all Flaks selected
@@ -546,7 +570,7 @@ function buildLab(htmlNode) {
 }
 
 function hover(elem) {
-	Tooltip.showForButton(elem.id, elem.offsetTop);
+	Tooltip.showForButton(elem, elem.offsetTop);
 }
 
 function unhover(elem) {
